@@ -1,75 +1,96 @@
-const gameArea = {
-  canvas: document.createElement("canvas"),
+const BG_COLOR = '#DAD294';
+const SNAKE_COLOR = '#E53935';
+const FOOD_COLOR = '#456596';
 
-  start: function () {
-    this.canvas.width = 500;
-    this.canvas.height = 500;
-    this.context = this.canvas.getContext("2d");
-    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-    this.interval = setInterval(updateGameArea, 20);
+const canvas = document.getElementById("canvas");
+canvas.width = canvas.height = 400;
+const ct = canvas.getContext("2d");
 
-  },
-  clear: function () {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  },
+// SCREEN
+
+const frameRate = 10;
+const screenSize = 20;
+const tile = canvas.width / screenSize;
+
+// IMPORTANT VARIABLES
+
+let pos, velocity, food, snake;
+
+function init() {
+  pos = { x: 0, y: 0 };
+  velocity = { x: 0, y: 0 };
+
+  snake = [
+    { x: 8, y: 10},
+    { x: 7, y: 10},
+    { x: 6, y: 10},
+  ];
+
+  randomFood();
 }
 
-function component(width, height, color, x, y) {
-  this.width = width;
-  this.height = height;
-  this.speedX = 0;
-  this.speedY = 0;
-  this.x = x;
-  this.y = y;
+init();
 
-  this.update = function () {
-    ctx = gameArea.context;
-    ctx.fillStyle = color;
-    ctx.fillRect(this.x, this.y, this.width, this.height);
+function randomFood() {
+  
+  food = {
+    x: Math.floor(Math.random() * tile),
+    y: Math.floor(Math.random() * tile)
+  };
+
+  for (let cell of snake) {
+    if (food.x === cell.x && food.y === cell.y) {
+      return randomFood();
+    }
+  }
+}
+
+document.addEventListener("keydown", keydown);
+
+function keydown(e) {
+  switch (e.keyCode) {
+    case 37:
+      return velocity = { x: -1, y: 0 }
+    case 38:
+      return velocity = { x: 0, y: -1 }
+    case 39:
+      return velocity = { x: 1, y: 0 }
+    case 40:
+      return velocity = { x: 0, y: 1 }
   }
 
-  this.newPos = function() {
-    this.x = this.speedX;
-    this.y = this.speedY;
+}
+
+// GAME LOOP
+
+function gameLoop() {
+  ct.fillStyle = BG_COLOR;
+  ct.clearRect(0, 0, canvas.width, canvas.height);
+  ct.fillRect(0, 0, canvas.width, canvas.height);
+
+  ct.fillStyle = SNAKE_COLOR;
+  for (let cell of snake) {
+    ct.fillRect(cell.x * screenSize, cell.y * screenSize, screenSize, screenSize);
   }
-}
 
-let snake = new component(70, 20, "blue", gameArea.canvas.width / 4, gameArea.canvas.height / 4);
+  ct.fillStyle = FOOD_COLOR;
+  ct.fillRect(food.x * screenSize, food.y * screenSize, screenSize, screenSize);
 
-function moveup() {
-  snake.speedY -= 1;
-}
+  pos.x += velocity.x;
+  pos.y += velocity.y;
 
-function movedown() {
-  snake.speedY += 1;
-}
-
-function moveleft() {
-  snake.speedX -= 1;
-}
-
-function moveright() {
-  snake.speedX += 1;
-}
-
-function startGame() {
-  gameArea.start();
-}
-
-function updateGameArea() {
-  gameArea.clear();
-  snake.newPos();
-  snake.update();
-}
-
-startGame();
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowUp") {
-    moveup();
-    console.log("im up")
+  if (snake[0].x === food.x && snake[0].y === food.y) {
+    snake.push({...pos});
+    randomFood();
   }
-  if (e.key === "ArrowRight") moveright();
-  if (e.key === "ArrowDown") movedown();
-  if (e.key === "ArrowLeft") moveleft();
-})
+  
+  if (velocity.x || velocity.y) {
+    snake.push({...pos});
+    snake.shift();
+  }
+  
+}
+
+setInterval(() => {
+  // requestAnimationFrame(gameLoop);
+}, 1000 / frameRate)
