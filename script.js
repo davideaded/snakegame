@@ -9,12 +9,13 @@ const ct = canvas.getContext("2d");
 // SCREEN
 
 const frameRate = 10;
-const screenSize = 20;
-const tile = canvas.width / screenSize;
+const numTiles = 15;
+const tileSize = canvas.width / numTiles;
 
 // IMPORTANT VARIABLES
 
 let pos, velocity, food, snake;
+
 
 function init() {
   pos = { x: 8, y: 10 };
@@ -32,10 +33,10 @@ function init() {
 init();
 
 function randomFood() {
-  
+
   food = {
-    x: Math.floor(Math.random() * tile),
-    y: Math.floor(Math.random() * tile)
+    x: Math.floor(Math.random() * numTiles),
+    y: Math.floor(Math.random() * numTiles)
   };
 
   for (let cell of snake) {
@@ -45,6 +46,14 @@ function randomFood() {
   }
 }
 
+// FONT
+function drawScore() {
+  ct.fillStyle = "#333";
+  ct.font = "bold 24px Arial";
+  ct.fillText("Score: " + (snake.length - 3), 10, 30);
+}
+
+// COMMANDS
 document.addEventListener("keydown", keydown);
 
 function keydown(e) {
@@ -65,16 +74,18 @@ function keydown(e) {
 
 function gameLoop() {
   ct.fillStyle = BG_COLOR;
-  ct.clearRect(0, 0, canvas.width, canvas.height);
+  
+  const scoreArea = canvas.height * (20/100);
+  
+  
   ct.fillRect(0, 0, canvas.width, canvas.height);
-
-
+  drawScore();
   ct.fillStyle = FOOD_COLOR;
-  ct.fillRect(food.x * screenSize, food.y * screenSize, screenSize, screenSize);
+  ct.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
 
   ct.fillStyle = SNAKE_COLOR;
   for (let cell of snake) {
-    ct.fillRect(cell.x * screenSize, cell.y * screenSize, screenSize, screenSize);
+    ct.fillRect(cell.x * tileSize, cell.y * tileSize, tileSize, tileSize);
   }
 
   pos.x += velocity.x;
@@ -89,7 +100,7 @@ function gameLoop() {
   
   if (velocity.x || velocity.y) {
     for (let cell of snake) {
-      let outboundery = cell.x >= canvas.width / screenSize || cell.x < 0 || cell.y < 0 || cell.y >= canvas.height / screenSize;
+      let outboundery = cell.x >= canvas.width / tileSize || cell.x < 0 || cell.y < 0 || cell.y >= canvas.height / tileSize;
       if (cell.x === pos.x && cell.y === pos.y || outboundery) {
         return init();
       }
@@ -101,5 +112,4 @@ function gameLoop() {
 
 setInterval(() => {
   requestAnimationFrame(gameLoop);
-  console.log("X: ", snake[0].x, "Y: ", snake[0].y)
 }, 1000 / frameRate)
