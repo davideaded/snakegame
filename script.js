@@ -3,14 +3,22 @@ const SNAKE_COLOR = '#E53935';
 const FOOD_COLOR = '#456596';
 
 const canvas = document.getElementById("canvas");
-canvas.width = canvas.height = 600;
+canvas.width = canvas.height = 800;
 const ct = canvas.getContext("2d");
 
+// SCORE AREA
+
+const scoreArea = 200;
+
+// GAME AREA
+
+const gameArea = canvas.width - scoreArea;
 // SCREEN
 
 const frameRate = 10;
-const numTiles = 15;
-const tileSize = canvas.width / numTiles;
+const numTiles = 20;
+const tileSize = gameArea / numTiles;
+
 
 // IMPORTANT VARIABLES
 
@@ -49,8 +57,15 @@ function randomFood() {
 // FONT
 function drawScore() {
   ct.fillStyle = "#333";
-  ct.font = "bold 24px Arial";
-  ct.fillText("Score: " + (snake.length - 3), 10, 30);
+  ct.font = "bold 100px Arial";
+  ct.textBaseline = "middle"
+  ct.textAlign = "center"
+  ct.fillText("Score: " + (snake.length - 3), canvas.width / 2, canvas.width - scoreArea / 2);
+}
+
+function drawScoreArea() {
+  ct.fillStyle = "#eee";
+  ct.fillRect(0, canvas.height - scoreArea, 800, 800)
 }
 
 // COMMANDS
@@ -70,23 +85,32 @@ function keydown(e) {
 
 }
 
-// GAME LOOP
-
-function gameLoop() {
+function clearGameArea() {
   ct.fillStyle = BG_COLOR;
-  
-  const scoreArea = canvas.height * (20/100);
-  
-  
   ct.fillRect(0, 0, canvas.width, canvas.height);
-  drawScore();
+}
+
+function drawFood() {
+  clearGameArea();
   ct.fillStyle = FOOD_COLOR;
   ct.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
+}
 
+function drawSnake() {
   ct.fillStyle = SNAKE_COLOR;
   for (let cell of snake) {
     ct.fillRect(cell.x * tileSize, cell.y * tileSize, tileSize, tileSize);
   }
+}
+
+// GAME LOOP
+
+function gameLoop() {
+  clearGameArea();
+  drawFood();
+  drawSnake();
+  drawScoreArea();
+  drawScore();
 
   pos.x += velocity.x;
   pos.y += velocity.y;
@@ -100,7 +124,7 @@ function gameLoop() {
   
   if (velocity.x || velocity.y) {
     for (let cell of snake) {
-      let outboundery = cell.x >= canvas.width / tileSize || cell.x < 0 || cell.y < 0 || cell.y >= canvas.height / tileSize;
+      let outboundery = cell.x >= canvas.width / tileSize || cell.x < 0 || cell.y < 0 || cell.y >= gameArea / tileSize;
       if (cell.x === pos.x && cell.y === pos.y || outboundery) {
         return init();
       }
