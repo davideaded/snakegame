@@ -1,139 +1,178 @@
-const BG_COLOR = '#DAD294';
-const SNAKE_COLOR = '#E53935';
-const FOOD_COLOR = '#456596';
+const gameUtils = {
+  BG_COLOR: '#DAD294',
+  SNAKE_COLOR: '#E53935',
+  FOOD_COLOR: '#456596',
+};
 
-const canvas = document.getElementById("canvas");
-canvas.width = canvas.height = 800;
-const ct = canvas.getContext("2d");
+// CANVAS SETTINGS
 
-// SCORE AREA
-
-const scoreArea = 200;
-
-// GAME AREA
-
-const gameArea = canvas.width - scoreArea;
-// SCREEN
-
-const frameRate = 10;
-const numTiles = 20;
-const tileSize = gameArea / numTiles;
-
-
-// IMPORTANT VARIABLES
-
-let pos, velocity, food, snake;
-
-
-function init() {
-  pos = { x: 8, y: 10 };
-  velocity = { x: 0, y: 0 };
-
-  snake = [
-    { x: 6, y: 10},
-    { x: 7, y: 10},
-    { x: 8, y: 10},
-  ];
-
-  randomFood();
+function createCanvas() {
+  const canvas = document.getElementById("canvas");
+  canvas.width = canvas.height = 800;
+  const ct = canvas.getContext("2d");
+  return { ct, canvas };
 }
 
-init();
+const { ct, canvas } = createCanvas();
 
-function randomFood() {
+// GAME SETTINGS
 
-  food = {
-    x: Math.floor(Math.random() * numTiles),
-    y: Math.floor(Math.random() * numTiles)
+function createGameSettings(canvasWidth) {
+  const scoreArea = 200;
+  const gameArea = canvasWidth - scoreArea;
+  const numTiles = 20;
+
+  return {
+    scoreArea,
+    gameArea,
+    frameRate: 10,
+    numTiles,
+    tileSize: gameArea / numTiles
   };
+}
 
-  for (let cell of snake) {
-    if (food.x === cell.x && food.y === cell.y) {
-      return randomFood();
+const gameSettings = {
+  scoreArea: 200,
+  gameArea: 600,
+  frameRate: 10,
+  numTiles: 20,
+};
+
+gameSettings.tileSize = gameSettings.gameArea / gameSettings.numTiles;
+
+// SNAKE CLASS
+
+class Snake {
+  constructor() {
+    this.body = [
+      { x: 8, y: 10},
+      { x: 7, y: 10},
+      { x: 6, y: 10},
+    ];
+    this.speed = { x: 0, y: 0};
+  }
+  
+  setSpeed(x, y) {
+    this.speed = { x, y };
+  }
+
+  getHead() {
+    return this.body[this.body.length - 1];
+  }
+
+  // queue
+
+  move() {
+    const newHead = {
+      x: this.getHead().x + this.speed.x,
+      y: this.getHead().y + this.speed.y
+    };
+    this.body.push(newHead);
+    this.body.shift();
+  }
+
+  grow(x, y) {
+    const newHead = {
+      x: this.getHead().x + this.speed.x,
+      y: this.getHead().y + this.speed.y
+    };
+    this.body.push(newHead);
+  }
+
+  draw() {
+    ct.fillStyle = gameUtils.SNAKE_COLOR;
+    for (let cell of this.body) {
+      ct.fillRect(cell.x * gameSettings.tileSize, cell.y * gameSettings.tileSize, gameSettings.tileSize, gameSettings.tileSize);
     }
   }
 }
 
-// FONT
-function drawScore() {
-  ct.fillStyle = "#333";
-  ct.font = "bold 100px Arial";
-  ct.textBaseline = "middle"
-  ct.textAlign = "center"
-  ct.fillText("Score: " + (snake.length - 3), canvas.width / 2, canvas.width - scoreArea / 2);
+// GAME STATE
+
+let snake = new Snake();
+let food = spawnFood();
+
+function spawnFood() {
+  let newFood;
+  do {
+    newFood = {
+      x: Math.floor(Math.random() * gameSettings.numTiles),
+      y: Math.floor(Math.random() * gameSettings.numTiles)
+    };
+  } while (snake.body.some( cell => cell.x === newFood.x && cell.y === newFood.y));
+  return newFood;
 }
 
-function drawScoreArea() {
-  ct.fillStyle = "#eee";
-  ct.fillRect(0, canvas.height - scoreArea, 800, 800)
-}
+// DRAW FUNCTIONS
 
-// COMMANDS
-document.addEventListener("keydown", keydown);
-
-function keydown(e) {
-  switch (e.keyCode) {
-    case 37:
-      return velocity = { x: -1, y: 0 }
-    case 38:
-      return velocity = { x: 0, y: -1 }
-    case 39:
-      return velocity = { x: 1, y: 0 }
-    case 40:
-      return velocity = { x: 0, y: 1 }
-  }
-
-}
-
-function clearGameArea() {
-  ct.fillStyle = BG_COLOR;
+function clearCanvas() {
+  ct.fillStyle = gameUtils.BG_COLOR;
   ct.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawFood() {
-  clearGameArea();
-  ct.fillStyle = FOOD_COLOR;
-  ct.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
+  ct.fillStyle = gameUtils.FOOD_COLOR;
+  ct.fillRect(food.x * gameSettings.tileSize, food.y * gameSettings.tileSize, gameSettings.tileSize, gameSettings.tileSize);
 }
 
-function drawSnake() {
-  ct.fillStyle = SNAKE_COLOR;
-  for (let cell of snake) {
-    ct.fillRect(cell.x * tileSize, cell.y * tileSize, tileSize, tileSize);
-  }
+function drawScoreArea() {
+  ct.fillStyle = "#eee";
+  ct.fillRect(0, canvas.height - gameSettings.scoreArea, canvas.width, gameSettings.scoreArea);
+  ct.fillStyle = "#333";
+  ct.font = "bold 100px Arial";
+  ct.textAlign = "center"
+  ct.textBaseline = "middle"
+  ct.fillText(`Score: ${snake.body.length - 3}`, canvas.width / 2, canvas.height - gameSettings.scoreArea / 2);
 }
 
 // GAME LOOP
 
 function gameLoop() {
-  clearGameArea();
-  drawFood();
-  drawSnake();
-  drawScoreArea();
-  drawScore();
+  if (snake.speed.x !== 0 || snake.speed.y !== 0) {
+    const head = snake.getHead();
+    const nextX = head.x + snake.speed.x;
+    const nextY = head.y + snake.speed.y;
 
-  pos.x += velocity.x;
-  pos.y += velocity.y;
-
-  if (snake[0].x === food.x && snake[0].y === food.y) {
-    snake.push({...pos});
-    pos.x += velocity.x;
-    pos.y += velocity.y;
-    randomFood();
-  }
-  
-  if (velocity.x || velocity.y) {
-    for (let cell of snake) {
-      let outboundery = cell.x >= canvas.width / tileSize || cell.x < 0 || cell.y < 0 || cell.y >= gameArea / tileSize;
-      if (cell.x === pos.x && cell.y === pos.y || outboundery) {
-        return init();
-      }
+    if (
+      nextX < 0 || nextX >= canvas.width / gameSettings.tileSize ||
+      nextY < 0 || nextY >= gameSettings.gameArea / gameSettings.tileSize
+    ) {
+      return resetGame();
     }
-    snake.push({...pos});
-    snake.shift();
+
+    if (snake.body.some(cell => cell.x === nextX && cell.y === nextY)) {
+      return resetGame();
+    }
+
+    if (nextX === food.x && nextY === food.y) {
+      snake.grow();
+      food = spawnFood();
+    } else {
+      snake.move();
+    }
   }
+
+  clearCanvas();
+  drawFood();
+  snake.draw();
+  drawScoreArea();
+}
+
+function resetGame() {
+  snake = new Snake();
+  food = spawnFood();
 }
 
 setInterval(() => {
   requestAnimationFrame(gameLoop);
-}, 1000 / frameRate)
+}, 1000 / gameSettings.frameRate)
+
+// COMMANDS
+
+document.addEventListener("keydown", (e) => {
+  const key = e.keyCode;
+  if (key === 37 && snake.speed.x !== 1) snake.setSpeed(-1, 0);
+  if (key === 38 && snake.speed.y !== 1) snake.setSpeed(0, -1);
+  if (key === 39 && snake.speed.x !== -1) snake.setSpeed(1, 0);
+  if (key === 40 && snake.speed.y !== -1) snake.setSpeed(0, 1);
+});
