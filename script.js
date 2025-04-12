@@ -170,9 +170,10 @@ setInterval(() => {
 // COMMANDS
 
 document.addEventListener("keydown", (e) => {
-  const key = e.keyCode;
-  if (key === 37 && snake.speed.x !== 1) snake.setSpeed(-1, 0);
-  if (key === 38 && snake.speed.y !== 1) snake.setSpeed(0, -1);
-  if (key === 39 && snake.speed.x !== -1) snake.setSpeed(1, 0);
-  if (key === 40 && snake.speed.y !== -1) snake.setSpeed(0, 1);
+  const key = e.key;
+  if (/^Arrow/.test(key)) e.preventDefault();
+  if (key === "ArrowLeft" && snake.speed.x !== 1) snake.setSpeed(-1, 0);
+  if (key === "ArrowUp" && snake.speed.y !== 1) snake.setSpeed(0, -1);
+  if (key === "ArrowRight" && snake.speed.x !== -1) snake.setSpeed(1, 0);
+  if (key === "ArrowDown" && snake.speed.y !== -1) snake.setSpeed(0, 1);
 });
