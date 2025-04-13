@@ -1,11 +1,11 @@
 const gameUtils = {
-  BG_COLOR: '#DAD294',
-  SNAKE_COLOR: '#E53935',
-  FOOD_COLOR: '#456596',
+  BG_COLOR: '#e8cea8',
+  SNAKE_COLOR: '#463e6c',
+  FOOD_COLOR: '#10479f',
+  GRID_COLOR: 'rgba(190, 168, 149, 1)',
 };
 
 // CANVAS SETTINGS
-
 function createCanvas() {
   const canvas = document.getElementById("canvas");
   canvas.width = canvas.height = 800;
@@ -16,32 +16,15 @@ function createCanvas() {
 const { ct, canvas } = createCanvas();
 
 // GAME SETTINGS
-
-function createGameSettings(canvasWidth) {
-  const scoreArea = 200;
-  const gameArea = canvasWidth - scoreArea;
-  const numTiles = 20;
-
-  return {
-    scoreArea,
-    gameArea,
-    frameRate: 10,
-    numTiles,
-    tileSize: gameArea / numTiles
-  };
-}
-
 const gameSettings = {
-  scoreArea: 200,
-  gameArea: 600,
+  scoreArea: 100,
+  gameArea: 700,
   frameRate: 10,
   numTiles: 20,
 };
-
 gameSettings.tileSize = gameSettings.gameArea / gameSettings.numTiles;
 
 // SNAKE CLASS
-
 class Snake {
   constructor() {
     this.body = [
@@ -88,9 +71,9 @@ class Snake {
 }
 
 // GAME STATE
-
 let snake = new Snake();
 let food = spawnFood();
+let highScore = getHighScore();
 
 function spawnFood() {
   let newFood;
@@ -103,11 +86,41 @@ function spawnFood() {
   return newFood;
 }
 
-// DRAW FUNCTIONS
+function getHighScore() {
+  try {
+    return localStorage.getItem("highScore");
+  }
+  catch(error) {
+    console.error("Couldn't retrieve high score: ", error);
+  }
+}
 
+function saveHighScore() {
+  const score = snake.body.length - 3;
+  try {
+    const currentHighScore = localStorage.getItem("highScore");
+    if (currentHighScore === null || score > currentHighScore) {
+      localStorage.setItem("highScore", score);
+      return;
+    } 
+  } catch (error) {
+    console.error("Couldn't save high score: ", error);
+  }
+}
+
+// DRAW FUNCTIONS
 function clearCanvas() {
   ct.fillStyle = gameUtils.BG_COLOR;
   ct.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawTiles() {
+  ct.strokeStyle = gameUtils.GRID_COLOR;
+  for ( let y = 0; y < gameSettings.gameArea; y+= gameSettings.tileSize) {
+    for (let x = 0; x < canvas.width; x+= gameSettings.tileSize) {
+      ct.strokeRect(x, y, gameSettings.tileSize, gameSettings.tileSize);
+    }
+  }
 }
 
 function drawFood() {
@@ -116,17 +129,38 @@ function drawFood() {
 }
 
 function drawScoreArea() {
-  ct.fillStyle = "#eee";
-  ct.fillRect(0, canvas.height - gameSettings.scoreArea, canvas.width, gameSettings.scoreArea);
-  ct.fillStyle = "#333";
-  ct.font = "bold 100px Arial";
-  ct.textAlign = "center"
-  ct.textBaseline = "middle"
+  // bg
+  const bgArea = { x: 0, y: canvas.height - gameSettings.scoreArea };
+  ct.fillStyle = gameUtils.SNAKE_COLOR;
+  ct.beginPath();
+  ct.roundRect(bgArea.x, bgArea.y, canvas.width, gameSettings.scoreArea, [15,15,3,3]);
+  ct.fill();
+
+  // border
+  const borderSize = 10;
+  ct.fillStyle = "#2c0f2b";
+  ct.beginPath();
+  ct.roundRect(bgArea.x + borderSize, bgArea.y + borderSize, canvas.width - (borderSize * 2), gameSettings.scoreArea - (borderSize * 2), 15);
+  ct.fill();
+
+  // score
+  ct.fillStyle = "beige";
+  ct.font = "bold 40px Doto";
+  ct.textAlign = "center";
+  ct.textBaseline = "start";
+  ct.shadowColor = "yellow";
+  ct.shadowBlur = 15;
   ct.fillText(`Score: ${snake.body.length - 3}`, canvas.width / 2, canvas.height - gameSettings.scoreArea / 2);
+
+  // high score
+  ct.font = "bold 35px Doto";
+  ct.textBaseline = "bottom"
+  ct.shadowBlur = 15;
+  ct.fillText(`High score: ${highScore ? highScore : 0}`, (canvas.width / 2) - borderSize, canvas.height - borderSize);
+  ct.shadowBlur = 0;
 }
 
 // GAME LOOP
-
 function gameLoop() {
   if (snake.speed.x !== 0 || snake.speed.y !== 0) {
     const head = snake.getHead();
@@ -137,10 +171,12 @@ function gameLoop() {
       nextX < 0 || nextX >= canvas.width / gameSettings.tileSize ||
       nextY < 0 || nextY >= gameSettings.gameArea / gameSettings.tileSize
     ) {
+      saveHighScore();
       return resetGame();
     }
 
     if (snake.body.some(cell => cell.x === nextX && cell.y === nextY)) {
+      saveHighScore();
       return resetGame();
     }
 
@@ -153,6 +189,7 @@ function gameLoop() {
   }
 
   clearCanvas();
+  drawTiles();
   drawFood();
   snake.draw();
   drawScoreArea();
@@ -161,6 +198,7 @@ function gameLoop() {
 function resetGame() {
   snake = new Snake();
   food = spawnFood();
+  highScore = getHighScore();
 }
 
 setInterval(() => {
@@ -168,7 +206,6 @@ setInterval(() => {
 }, 1000 / gameSettings.frameRate)
 
 // COMMANDS
-
 document.addEventListener("keydown", (e) => {
   const key = e.key;
   if (/^Arrow/.test(key)) e.preventDefault();
