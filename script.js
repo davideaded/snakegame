@@ -22,7 +22,7 @@ const gameSettings = {
   frameRate: 10,
   numTiles: 20,
 };
-gameSettings.tileSize = gameSettings.gameArea / gameSettings.numTiles;
+gameSettings.tileSize = canvas.width / gameSettings.numTiles; // in pixels. 40 here
 
 // SNAKE CLASS
 class Snake {
@@ -62,6 +62,81 @@ class Snake {
     this.body.push(newHead);
   }
 
+  drawHead() {
+    const head = this.getHead();
+    const faceBlock = gameSettings.tileSize / 4;
+
+    // need to make it relative so it is aways on the same places
+    // regardless of the direction it is going
+
+    // left
+    if (this.speed.x === -1 && this.speed.y === 0) {
+      ct.fillStyle = "black";
+      
+      ct.fillRect(
+        (head.x * gameSettings.tileSize) + (gameSettings.tileSize / 2), head.y * gameSettings.tileSize, faceBlock, faceBlock
+      );
+
+      ct.fillRect(
+        (head.x * gameSettings.tileSize) + (gameSettings.tileSize / 2),
+        (head.y * gameSettings.tileSize) + gameSettings.tileSize - faceBlock, faceBlock, faceBlock
+      );
+
+      ct.fillStyle = "red";
+      ct.fillRect(head.x * gameSettings.tileSize, (head.y * gameSettings.tileSize) + 20 - (faceBlock / 2), faceBlock, faceBlock);
+    }
+
+    //right
+    if (this.speed.x === 1 && this.speed.y === 0) {
+      ct.fillStyle = "black";
+      
+      ct.fillRect(
+        (head.x * gameSettings.tileSize) + faceBlock, head.y * gameSettings.tileSize, faceBlock, faceBlock
+      );
+
+      ct.fillRect(
+        (head.x * gameSettings.tileSize) + faceBlock,
+        (head.y * gameSettings.tileSize) + gameSettings.tileSize - faceBlock, faceBlock, faceBlock
+      );
+
+      ct.fillStyle = "red";
+      ct.fillRect(head.x * gameSettings.tileSize + (gameSettings.tileSize - faceBlock), (head.y * gameSettings.tileSize) + 20 - (faceBlock / 2), faceBlock, faceBlock);
+    }
+
+    // up
+    if (this.speed.x === 0 && this.speed.y === -1) {
+      ct.fillStyle = "black";
+      
+      ct.fillRect(
+        head.x * gameSettings.tileSize, (head.y * gameSettings.tileSize) + gameSettings.tileSize / 2, faceBlock, faceBlock
+      );
+
+      ct.fillRect(
+        (head.x * gameSettings.tileSize) + gameSettings.tileSize - faceBlock,
+        (head.y * gameSettings.tileSize) + gameSettings.tileSize / 2, faceBlock, faceBlock
+      );
+
+      ct.fillStyle = "red";
+      ct.fillRect(head.x * gameSettings.tileSize + (gameSettings.tileSize / 2) - faceBlock / 2, (head.y * gameSettings.tileSize), faceBlock, faceBlock);
+    }
+    
+    if (this.speed.x === 0 && this.speed.y === 1) {
+      ct.fillStyle = "black";
+      
+      ct.fillRect(
+        head.x * gameSettings.tileSize, head.y * gameSettings.tileSize + faceBlock, faceBlock, faceBlock
+      );
+
+      ct.fillRect(
+        (head.x * gameSettings.tileSize) + gameSettings.tileSize - faceBlock,
+        (head.y * gameSettings.tileSize) + faceBlock, faceBlock, faceBlock
+      );
+
+      ct.fillStyle = "red";
+      ct.fillRect(head.x * gameSettings.tileSize + (gameSettings.tileSize / 2) - faceBlock / 2, (head.y * gameSettings.tileSize) + gameSettings.tileSize - faceBlock, faceBlock, faceBlock);
+    }
+  }
+
   draw() {
     ct.fillStyle = gameUtils.SNAKE_COLOR;
     for (let cell of this.body) {
@@ -82,7 +157,10 @@ function spawnFood() {
       x: Math.floor(Math.random() * gameSettings.numTiles),
       y: Math.floor(Math.random() * gameSettings.numTiles)
     };
-  } while (snake.body.some( cell => cell.x === newFood.x && cell.y === newFood.y));
+  } while (
+    snake.body.some(cell => cell.x === newFood.x && cell.y === newFood.y) ||
+    newFood.y * gameSettings.tileSize < gameSettings.scoreArea
+  );
   return newFood;
 }
 
@@ -90,7 +168,7 @@ function getHighScore() {
   try {
     return localStorage.getItem("highScore");
   }
-  catch(error) {
+  catch (error) {
     console.error("Couldn't retrieve high score: ", error);
   }
 }
@@ -102,7 +180,7 @@ function saveHighScore() {
     if (currentHighScore === null || score > currentHighScore) {
       localStorage.setItem("highScore", score);
       return;
-    } 
+    }
   } catch (error) {
     console.error("Couldn't save high score: ", error);
   }
@@ -116,8 +194,8 @@ function clearCanvas() {
 
 function drawTiles() {
   ct.strokeStyle = gameUtils.GRID_COLOR;
-  for ( let y = 0; y < gameSettings.gameArea; y+= gameSettings.tileSize) {
-    for (let x = 0; x < canvas.width; x+= gameSettings.tileSize) {
+  for (let y = 0; y < canvas.height; y += gameSettings.tileSize) {
+    for (let x = 0; x < canvas.width; x += gameSettings.tileSize) {
       ct.strokeRect(x, y, gameSettings.tileSize, gameSettings.tileSize);
     }
   }
@@ -130,33 +208,33 @@ function drawFood() {
 
 function drawScoreArea() {
   // bg
-  const bgArea = { x: 0, y: canvas.height - gameSettings.scoreArea };
+  const bgSize = { x: canvas.width, y: gameSettings.scoreArea + 20 };
   ct.fillStyle = gameUtils.SNAKE_COLOR;
   ct.beginPath();
-  ct.roundRect(bgArea.x, bgArea.y, canvas.width, gameSettings.scoreArea, [15,15,3,3]);
+  ct.roundRect(0, 0, bgSize.x, bgSize.y, [10, 10, 15, 15]);
   ct.fill();
 
   // border
-  const borderSize = 10;
+  const borderSize = 15;
   ct.fillStyle = "#2c0f2b";
   ct.beginPath();
-  ct.roundRect(bgArea.x + borderSize, bgArea.y + borderSize, canvas.width - (borderSize * 2), gameSettings.scoreArea - (borderSize * 2), 15);
+  ct.roundRect(borderSize, borderSize, canvas.width - (borderSize * 2), gameSettings.scoreArea - borderSize, 15);
   ct.fill();
 
   // score
   ct.fillStyle = "beige";
-  ct.font = "bold 40px Doto";
+  ct.font = "bold 35px Doto";
   ct.textAlign = "center";
   ct.textBaseline = "start";
   ct.shadowColor = "yellow";
   ct.shadowBlur = 15;
-  ct.fillText(`Score: ${snake.body.length - 3}`, canvas.width / 2, canvas.height - gameSettings.scoreArea / 2);
+  ct.fillText(`Score: ${snake.body.length - 3}`, canvas.width / 2, gameSettings.scoreArea / 2);
 
   // high score
   ct.font = "bold 35px Doto";
   ct.textBaseline = "bottom"
   ct.shadowBlur = 15;
-  ct.fillText(`High score: ${highScore ? highScore : 0}`, (canvas.width / 2) - borderSize, canvas.height - borderSize);
+  ct.fillText(`High score: ${highScore ? highScore : 0}`, (canvas.width / 2) - borderSize, gameSettings.scoreArea);
   ct.shadowBlur = 0;
 }
 
@@ -169,7 +247,7 @@ function gameLoop() {
 
     if (
       nextX < 0 || nextX >= canvas.width / gameSettings.tileSize ||
-      nextY < 0 || nextY >= gameSettings.gameArea / gameSettings.tileSize
+      nextY < gameSettings.scoreArea / gameSettings.tileSize || nextY >= canvas.height / gameSettings.tileSize
     ) {
       saveHighScore();
       return resetGame();
@@ -192,6 +270,7 @@ function gameLoop() {
   drawTiles();
   drawFood();
   snake.draw();
+  snake.drawHead();
   drawScoreArea();
 }
 
@@ -213,4 +292,8 @@ document.addEventListener("keydown", (e) => {
   if (key === "ArrowUp" && snake.speed.y !== 1) snake.setSpeed(0, -1);
   if (key === "ArrowRight" && snake.speed.x !== -1) snake.setSpeed(1, 0);
   if (key === "ArrowDown" && snake.speed.y !== -1) snake.setSpeed(0, 1);
+});
+
+document.addEventListener("mousemove", (e) => {
+  console.log(e.clientX, e.clientY );
 });
