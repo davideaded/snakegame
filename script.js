@@ -5,6 +5,14 @@ const gameUtils = {
   GRID_COLOR: 'rgba(190, 168, 149, 1)',
 };
 
+// UI
+
+const startButton = document.getElementById("start-game-btn");
+startButton.addEventListener("click", () => {
+  const startDiv = document.getElementById("start-game");
+  startDiv.style.display = "none";
+});
+
 // CANVAS SETTINGS
 function createCanvas() {
   const canvas = document.getElementById("canvas");
