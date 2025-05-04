@@ -22,7 +22,29 @@ const gameSettings = {
   frameRate: 10,
   numTiles: 20,
 };
-gameSettings.tileSize = canvas.width / gameSettings.numTiles; // in pixels. 40 here
+gameSettings.tileSize = canvas.width / gameSettings.numTiles;
+
+// AUDIO
+
+const soundManager = {
+  sounds: {},
+
+  loadSounds() {
+    this.sounds.eat = new Audio("./assets/sounds/eat.wav");
+    this.sounds.hitwall = new Audio("./assets/sounds/hitwall.wav");
+    this.sounds.highscore = new Audio("./assets/sounds/highscore.wav");
+  },
+
+  play(audioElement) {
+    const audio = this.sounds[audioElement];
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.play().catch(err => console.warn("Couldn't play sound", err));
+    }
+  }
+}
+soundManager.loadSounds();
 
 // SNAKE CLASS
 class Snake {
@@ -174,6 +196,7 @@ function saveHighScore() {
     const currentHighScore = localStorage.getItem("highScore");
     if (currentHighScore === null || score > currentHighScore) {
       localStorage.setItem("highScore", score);
+      soundManager.play("highscore");
       return;
     }
   } catch (error) {
@@ -244,16 +267,19 @@ function gameLoop() {
       nextX < 0 || nextX >= canvas.width / gameSettings.tileSize ||
       nextY < gameSettings.scoreArea / gameSettings.tileSize || nextY >= canvas.height / gameSettings.tileSize
     ) {
+      soundManager.play("hitwall");
       saveHighScore();
       return resetGame();
     }
 
     if (snake.body.some(cell => cell.x === nextX && cell.y === nextY)) {
+      soundManager.play("hitwall");
       saveHighScore();
       return resetGame();
     }
 
     if (nextX === food.x && nextY === food.y) {
+      soundManager.play("eat");
       snake.grow();
       food = spawnFood();
     } else {
