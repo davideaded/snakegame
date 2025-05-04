@@ -1,16 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Snake</title>
-  <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="assets/snake.png" type="image/x-icon" />
+  <style>
+    @font-face {
+      font-family: Doto;
+      src: url('./fonts/Doto/Doto-VariableFont_ROND\,wght.ttf') format('truetype');
+    }
+
+    @font-face {
+      font-family: Roboto;
+      src: url('./fonts/Roboto/Roboto-VariableFont_wdth\,wght.ttf') format('truetype');
+    }
+
+    * {
+      margin: 0;
+      box-sizing: border-box;
+      padding: 0;
+      font-family: "Roboto", sans-serif;
+    }
+
+    body {
+      text-align: center;
+      background-color: #ccc;
+      overflow: hidden;
+    }
+
+    canvas {
+      font-family: "Doto";
+      border: 2px solid black;
+      margin: 2rem auto;
+      border-radius: 2%;
+    }
+
+    .main-title {
+      margin-top: 0.5rem;
+      font-size: 3rem;
+      color: #463e6c;
+      position: relative;
+      left: 2.5%;
+    }
+
+    .snake-unicode {
+      position: relative;
+      left: -2.5%;
+    }
+
+  </style>
 </head>
+
 <body>
-  <h1> Rnake Game </h1>
+  <h1 class="main-title"> Rnake Game <span class="snake-unicode">𓆓</span></h1>
   <canvas id="canvas"></canvas>
-  <p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia, laboriosam. Blanditiis, ratione, iusto possimus dolores aspernatur laborum corrupti sapiente earum sint rerum nobis optio dolore aut laboriosam sunt ad aliquid! </p>
   <script src="script.js" type="module"></script>
 </body>
+
 </html>

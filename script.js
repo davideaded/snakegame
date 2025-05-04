@@ -43,8 +43,6 @@ class Snake {
     return this.body[this.body.length - 1];
   }
 
-  // queue
-
   move() {
     const newHead = {
       x: this.getHead().x + this.speed.x,
@@ -66,11 +64,8 @@ class Snake {
     const head = this.getHead();
     const faceBlock = gameSettings.tileSize / 4;
 
-    // need to make it relative so it is aways on the same places
-    // regardless of the direction it is going
-
     // left
-    if (this.speed.x === -1 && this.speed.y === 0) {
+    if ((this.speed.x === -1 && this.speed.y === 0) || (this.speed.x === 0 && this.speed.y === 0)) {
       ct.fillStyle = "black";
       
       ct.fillRect(
@@ -292,8 +287,4 @@ document.addEventListener("keydown", (e) => {
   if (key === "ArrowUp" && snake.speed.y !== 1) snake.setSpeed(0, -1);
   if (key === "ArrowRight" && snake.speed.x !== -1) snake.setSpeed(1, 0);
   if (key === "ArrowDown" && snake.speed.y !== -1) snake.setSpeed(0, 1);
-});
-
-document.addEventListener("mousemove", (e) => {
-  console.log(e.clientX, e.clientY );
 });
