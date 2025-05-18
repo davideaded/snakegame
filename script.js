@@ -19,6 +19,12 @@ soundButton.addEventListener("click", () => {
   soundManager.isMuted ? soundButton.innerHTML = "🔊" : soundButton.innerHTML = "🔇"
 });
 
+const tilesButton = document.getElementById("tiles-btn");
+tilesButton.addEventListener("click", () => {
+  gameSettings.showTiles = !gameSettings.showTiles;
+});
+
+
 // CANVAS SETTINGS
 function createCanvas() {
   const canvas = document.getElementById("canvas");
@@ -35,6 +41,7 @@ const gameSettings = {
   gameArea: 700,
   frameRate: 10,
   numTiles: 20,
+  showTiles: true,
 };
 gameSettings.tileSize = canvas.width / gameSettings.numTiles;
 
@@ -225,6 +232,7 @@ function clearCanvas() {
 }
 
 function drawTiles() {
+  if (!gameSettings.showTiles) return;
   ct.strokeStyle = gameUtils.GRID_COLOR;
   for (let y = 0; y < canvas.height; y += gameSettings.tileSize) {
     for (let x = 0; x < canvas.width; x += gameSettings.tileSize) {

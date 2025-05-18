@@ -75,11 +75,8 @@ canvas {
   padding-left: 10px;
 }
 
-.settings {
+.menu {
   position: absolute;
-  left: 10%;
-  width: 250px;
-  height: 500px;
   margin: 2rem;
   background-color: var(--second-purple);
   border: 20px solid;
@@ -94,10 +91,71 @@ canvas {
   ) 15;
 }
 
+.keybindings {
+  right: 5%;
+  width: 350px;
+  height: 350px;
+}
+
+.keybindings::before {
+  content: "Control";
+  color: whitesmoke;
+  font-size: 25px;
+  position: relative;
+  top: -9.7%;
+  left: +25%;
+}
+
+.group-key {
+  display: grid;
+  margin: 20% 0;
+  justify-content: center;
+  grid-template-columns: repeat(3, 30%);
+  grid-template-rows: repeat(2, 80%);
+  gap: 10px 10px; 
+  grid-template-areas: 
+    ". arrowUp ."
+    "arrowLeft arrowDown arrowRight"; 
+}
+
+.arrowUp {
+  grid-area: arrowUp;
+}
+.arrowUp span {
+  transform: rotate(90deg);
+}
+.arrowDown {
+  grid-area: arrowDown;
+}
+.arrowDown span {
+  transform: rotate(-90deg);
+}
+.arrowLeft {
+  grid-area: arrowLeft;
+}
+.arrowRight { grid-area: arrowRight; }
+
+.key {
+  background-color: #efdfdf;
+  height: 70px;
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* border-right: 5px solid rgb(65, 63, 63);
+  border-bottom: 5px solid rgb(65, 63, 63); */
+  box-shadow: 4px 4px teal;
+}
+
+.settings {
+  left: 10%;
+  width: 250px;
+  height: 500px;
+}
+
 .settings::before {
   content: "Settings";
   color: whitesmoke;
-  background-color: var(--purple-color);
   font-size: 25px;
   position: relative;
   top: -6.7%;
@@ -110,25 +168,37 @@ canvas {
   font-size: 3rem;
   border-radius: 50%;
   background-color: crimson;
+  color: whitesmoke;
   cursor: pointer;
+  margin: .2rem 0;
 }
 
 .option-btn:hover {
   background-color: rgb(160, 13, 43);
-
 }
 
 .sound-options::after {
   content: "Sound";
-  font-size: 2rem;
+  font-size: 1.5rem;
   text-align: center;
   color: whitesmoke;
   padding: 0 2rem;
   margin: 0;
 }
 
+.tiles-options::after {
+  content: "Toggle Tiles";
+  font-size: 1.5rem;
+  color: whitesmoke;
+  padding: 0 2rem;
+}
+
 @media (max-width: 1500px) {
   .settings {
     left: 0%;
+  }
+
+  .keybindings {
+    right: 0%;
   }
 }
