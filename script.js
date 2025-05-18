@@ -13,6 +13,12 @@ startButton.addEventListener("click", () => {
   startDiv.style.display = "none";
 });
 
+const soundButton = document.getElementById("sound-btn");
+soundButton.addEventListener("click", () => {
+  soundManager.isMuted = !soundManager.isMuted;
+  soundManager.isMuted ? soundButton.innerHTML = "🔊" : soundButton.innerHTML = "🔇"
+});
+
 // CANVAS SETTINGS
 function createCanvas() {
   const canvas = document.getElementById("canvas");
@@ -33,9 +39,9 @@ const gameSettings = {
 gameSettings.tileSize = canvas.width / gameSettings.numTiles;
 
 // AUDIO
-
 const soundManager = {
   sounds: {},
+  isMuted: false,
 
   loadSounds() {
     this.sounds.eat = new Audio("./assets/sounds/eat.wav");
@@ -45,7 +51,7 @@ const soundManager = {
 
   play(audioElement) {
     const audio = this.sounds[audioElement];
-    if (audio) {
+    if (audio && !this.isMuted) {
       audio.pause();
       audio.currentTime = 0;
       audio.play().catch(err => console.warn("Couldn't play sound", err));
