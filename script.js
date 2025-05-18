@@ -9,26 +9,26 @@ const themes = {
     GRID_COLOR: 'rgba(190, 168, 149, 1)',
   },
 
-  hellish: {
-    ARENA_COLOR: '#bf1004',
-    BORDER_SCORE_COLOR: '#660902',
-    INNER_SCORE_COLOR: '#000',
-    SNAKE_COLOR: '#18290c',
-    FOOD_COLOR: '#ffffff',
-    GRID_COLOR: 'rgb(36, 31, 26)',
+  sandstorm: {
+    ARENA_COLOR: '#BE3D2A',
+    BORDER_SCORE_COLOR: '#E78B48',
+    INNER_SCORE_COLOR: '#F5C45E',
+    SNAKE_COLOR: '#102E50',
+    FOOD_COLOR: 'rgb(58, 255, 51) ',
+    GRID_COLOR: 'rgba(245, 197, 94, 0.04)',
   },
 
   snow: {
     ARENA_COLOR: '#ffffff',
-    BORDER_SCORE_COLOR: '#5c8aff',
-    INNER_SCORE_COLOR: '#3d8eff',
+    BORDER_SCORE_COLOR: '#4F5AA8',
+    INNER_SCORE_COLOR: '#7481CF',
     SNAKE_COLOR: '#a2aab8',
     FOOD_COLOR: '#b80006',
-    GRID_COLOR: '#008080',
+    GRID_COLOR: 'rgba(0, 128, 128, 0.2)',
   },
 };
 
-let currentTheme = themes.earthbound;
+let currentTheme = themes.snow;
 
 function themesSelection() {
   const existing = document.querySelector(".theme-selection");
