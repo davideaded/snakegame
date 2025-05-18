@@ -1,9 +1,62 @@
-const gameUtils = {
-  BG_COLOR: '#e8cea8',
-  SNAKE_COLOR: '#463e6c',
-  FOOD_COLOR: '#10479f',
-  GRID_COLOR: 'rgba(190, 168, 149, 1)',
+// COLORS
+const themes = {
+  earthbound: {
+    ARENA_COLOR: '#e8cea8',
+    BORDER_SCORE_COLOR: '#463e6c',
+    INNER_SCORE_COLOR: '#2c0f2b',
+    SNAKE_COLOR: '#463e6c',
+    FOOD_COLOR: '#10479f',
+    GRID_COLOR: 'rgba(190, 168, 149, 1)',
+  },
+
+  hellish: {
+    ARENA_COLOR: '#bf1004',
+    BORDER_SCORE_COLOR: '#660902',
+    INNER_SCORE_COLOR: '#000',
+    SNAKE_COLOR: '#18290c',
+    FOOD_COLOR: '#ffffff',
+    GRID_COLOR: 'rgb(36, 31, 26)',
+  },
+
+  snow: {
+    ARENA_COLOR: '#ffffff',
+    BORDER_SCORE_COLOR: '#5c8aff',
+    INNER_SCORE_COLOR: '#3d8eff',
+    SNAKE_COLOR: '#a2aab8',
+    FOOD_COLOR: '#b80006',
+    GRID_COLOR: '#008080',
+  },
 };
+
+let currentTheme = themes.earthbound;
+
+function themesSelection() {
+  const existing = document.querySelector(".theme-selection");
+  if (existing) {
+    existing.remove();
+    return;
+  }
+
+  const innerDivThemeSelection = document.createElement("div");
+  innerDivThemeSelection.classList.add("theme-selection");
+
+  for (let theme of Object.keys(themes)) {
+    const themeElement = document.createElement("p");
+    themeElement.textContent = theme;
+    themeElement.addEventListener("click", e =>
+      handleThemeSelection(innerDivThemeSelection, e)
+    );
+    innerDivThemeSelection.append(themeElement);
+  }
+
+  document.body.append(innerDivThemeSelection);
+}
+
+function handleThemeSelection(htmlElement, e) {
+  currentTheme = themes[e.target.innerText];
+  console.log(e.target.innerHTML, currentTheme)
+  htmlElement.remove();
+}
 
 // UI
 
@@ -24,6 +77,8 @@ tilesButton.addEventListener("click", () => {
   gameSettings.showTiles = !gameSettings.showTiles;
 });
 
+const themeButton = document.getElementById("theme-btn");
+themeButton.addEventListener("click", themesSelection);
 
 // CANVAS SETTINGS
 function createCanvas() {
@@ -176,7 +231,7 @@ class Snake {
   }
 
   draw() {
-    ct.fillStyle = gameUtils.SNAKE_COLOR;
+    ct.fillStyle = currentTheme.SNAKE_COLOR;
     for (let cell of this.body) {
       ct.fillRect(cell.x * gameSettings.tileSize, cell.y * gameSettings.tileSize, gameSettings.tileSize, gameSettings.tileSize);
     }
@@ -227,13 +282,13 @@ function saveHighScore() {
 
 // DRAW FUNCTIONS
 function clearCanvas() {
-  ct.fillStyle = gameUtils.BG_COLOR;
+  ct.fillStyle = currentTheme.ARENA_COLOR;
   ct.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawTiles() {
   if (!gameSettings.showTiles) return;
-  ct.strokeStyle = gameUtils.GRID_COLOR;
+  ct.strokeStyle = currentTheme.GRID_COLOR;
   for (let y = 0; y < canvas.height; y += gameSettings.tileSize) {
     for (let x = 0; x < canvas.width; x += gameSettings.tileSize) {
       ct.strokeRect(x, y, gameSettings.tileSize, gameSettings.tileSize);
@@ -242,21 +297,21 @@ function drawTiles() {
 }
 
 function drawFood() {
-  ct.fillStyle = gameUtils.FOOD_COLOR;
+  ct.fillStyle = currentTheme.FOOD_COLOR;
   ct.fillRect(food.x * gameSettings.tileSize, food.y * gameSettings.tileSize, gameSettings.tileSize, gameSettings.tileSize);
 }
 
 function drawScoreArea() {
   // bg
   const bgSize = { x: canvas.width, y: gameSettings.scoreArea + 20 };
-  ct.fillStyle = gameUtils.SNAKE_COLOR;
+  ct.fillStyle = currentTheme.BORDER_SCORE_COLOR;
   ct.beginPath();
   ct.roundRect(0, 0, bgSize.x, bgSize.y, [10, 10, 15, 15]);
   ct.fill();
 
   // border
   const borderSize = 15;
-  ct.fillStyle = "#2c0f2b";
+  ct.fillStyle = currentTheme.INNER_SCORE_COLOR;
   ct.beginPath();
   ct.roundRect(borderSize, borderSize, canvas.width - (borderSize * 2), gameSettings.scoreArea - borderSize, 15);
   ct.fill();
@@ -265,7 +320,7 @@ function drawScoreArea() {
   ct.fillStyle = "beige";
   ct.font = "bold 35px Doto";
   ct.textAlign = "center";
-  ct.textBaseline = "start";
+  ct.textBaseline = "middle";
   ct.shadowColor = "yellow";
   ct.shadowBlur = 15;
   ct.fillText(`Score: ${snake.body.length - 3}`, canvas.width / 2, gameSettings.scoreArea / 2);
