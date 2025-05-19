@@ -14,7 +14,7 @@ const themes = {
     BORDER_SCORE_COLOR: '#E78B48',
     INNER_SCORE_COLOR: '#F5C45E',
     SNAKE_COLOR: '#102E50',
-    FOOD_COLOR: 'rgb(58, 255, 51) ',
+    FOOD_COLOR: 'rgb(58, 255, 51)',
     GRID_COLOR: 'rgba(245, 197, 94, 0.04)',
   },
 
@@ -28,7 +28,38 @@ const themes = {
   },
 };
 
-let currentTheme = themes.snow;
+function loadThemeFromLocalStorage() {
+  const storedTheme = localStorage.getItem("theme");
+  if (!storedTheme) return null;
+
+  try {
+    const parsed = JSON.parse(localStorage.getItem("theme"));
+    const validKeys = [
+      "ARENA_COLOR",
+      "BORDER_SCORE_COLOR",
+      "INNER_SCORE_COLOR",
+      "SNAKE_COLOR",
+      "FOOD_COLOR",
+      "GRID_COLOR",
+    ];
+
+    for (let key of validKeys) {
+      if (
+        typeof parsed[key] !== "string" ||
+        !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(parsed[key]) &&
+        !/^rgba?\((.+)\)$/i.test(parsed[key])
+      ) {
+        throw new Error(`Invalid value for ${key}`);
+      }
+    }
+
+    return parsed;
+  } catch (error) {
+    console.warn("Could not load saved theme: ", error);
+  }
+}
+
+let currentTheme = loadThemeFromLocalStorage() || themes.earthbound;
 
 function themesSelection() {
   const existing = document.querySelector(".theme-selection");
@@ -54,7 +85,7 @@ function themesSelection() {
 
 function handleThemeSelection(htmlElement, e) {
   currentTheme = themes[e.target.innerText];
-  console.log(e.target.innerHTML, currentTheme)
+  localStorage.setItem("theme", JSON.stringify(currentTheme));
   htmlElement.remove();
 }
 
@@ -126,13 +157,13 @@ soundManager.loadSounds();
 class Snake {
   constructor() {
     this.body = [
-      { x: 8, y: 10},
-      { x: 7, y: 10},
-      { x: 6, y: 10},
+      { x: 8, y: 10 },
+      { x: 7, y: 10 },
+      { x: 6, y: 10 },
     ];
-    this.speed = { x: 0, y: 0};
+    this.speed = { x: 0, y: 0 };
   }
-  
+
   setSpeed(x, y) {
     this.speed = { x, y };
   }
@@ -165,7 +196,7 @@ class Snake {
     // left
     if ((this.speed.x === -1 && this.speed.y === 0) || (this.speed.x === 0 && this.speed.y === 0)) {
       ct.fillStyle = "black";
-      
+
       ct.fillRect(
         (head.x * gameSettings.tileSize) + (gameSettings.tileSize / 2), head.y * gameSettings.tileSize, faceBlock, faceBlock
       );
@@ -182,7 +213,7 @@ class Snake {
     //right
     if (this.speed.x === 1 && this.speed.y === 0) {
       ct.fillStyle = "black";
-      
+
       ct.fillRect(
         (head.x * gameSettings.tileSize) + faceBlock, head.y * gameSettings.tileSize, faceBlock, faceBlock
       );
@@ -199,7 +230,7 @@ class Snake {
     // up
     if (this.speed.x === 0 && this.speed.y === -1) {
       ct.fillStyle = "black";
-      
+
       ct.fillRect(
         head.x * gameSettings.tileSize, (head.y * gameSettings.tileSize) + gameSettings.tileSize / 2, faceBlock, faceBlock
       );
@@ -212,10 +243,10 @@ class Snake {
       ct.fillStyle = "red";
       ct.fillRect(head.x * gameSettings.tileSize + (gameSettings.tileSize / 2) - faceBlock / 2, (head.y * gameSettings.tileSize), faceBlock, faceBlock);
     }
-    
+
     if (this.speed.x === 0 && this.speed.y === 1) {
       ct.fillStyle = "black";
-      
+
       ct.fillRect(
         head.x * gameSettings.tileSize, head.y * gameSettings.tileSize + faceBlock, faceBlock, faceBlock
       );
@@ -259,10 +290,12 @@ function spawnFood() {
 
 function getHighScore() {
   try {
-    return localStorage.getItem("highScore");
+    const score = localStorage.getItem("highScore");
+    if (typeof (score) !== 'string') return null;
+    return score;
   }
   catch (error) {
-    console.error("Couldn't retrieve high score: ", error);
+    console.warn("Couldn't retrieve high score: ", error);
   }
 }
 

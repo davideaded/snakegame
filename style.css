@@ -80,13 +80,11 @@ canvas {
   border: 20px solid;
   border-top: 30px solid;
 
-  border-image: repeating-linear-gradient(
-    30deg,
-    var(--purple-color) 0,
-    var(--purple-color) 10px,
-    var(--second-purple) 10px,
-    var(--second-purple) 20px
-  ) 15;
+  border-image: repeating-linear-gradient(30deg,
+      var(--purple-color) 0,
+      var(--purple-color) 10px,
+      var(--second-purple) 10px,
+      var(--second-purple) 20px) 15;
 }
 
 .settings {
@@ -169,28 +167,35 @@ canvas {
   grid-template-rows: repeat(2, 60%);
   align-items: center;
   justify-content: center;
-  gap: 10px 10px; 
-  grid-template-areas: 
+  gap: 10px 10px;
+  grid-template-areas:
     ". arrowUp ."
-    "arrowLeft arrowDown arrowRight"; 
+    "arrowLeft arrowDown arrowRight";
 }
 
 .arrowUp {
   grid-area: arrowUp;
 }
+
 .arrowUp span {
   transform: rotate(90deg);
 }
+
 .arrowDown {
   grid-area: arrowDown;
 }
+
 .arrowDown span {
   transform: rotate(90deg);
 }
+
 .arrowLeft {
   grid-area: arrowLeft;
 }
-.arrowRight { grid-area: arrowRight; }
+
+.arrowRight {
+  grid-area: arrowRight;
+}
 
 .key {
   background-color: #efdfdf;
