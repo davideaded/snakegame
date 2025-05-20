@@ -232,12 +232,22 @@ canvas {
   vertical-align: middle;
 }
 
-@media (max-width: 1500px) {
+@media (max-width: 1366px) {
+  .main-title {
+    display: none;
+  }
+
+  canvas {
+    height: 600px;
+  }
+
   .settings {
     left: 0%;
+    width: 200px;
   }
 
   .keybindings {
     right: 0%;
+    width: 250px;
   }
 }
