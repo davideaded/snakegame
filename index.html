@@ -2,45 +2,53 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snake</title>
-  <link rel="icon" href="assets/snake.png" type="image/x-icon" />
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snake</title>
+    <link rel="icon" href="assets/snake.png" type="image/x-icon" />
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <h1 class="main-title"> Rnake Game <span class="snake-unicode">𓆓</span></h1>
+    <h1 class="main-title"> Rnake Game <span class="snake-unicode">𓆓</span></h1>
 
-  <div id="start-game" class="start-game">
-    <button class="start-game-btn" id="start-game-btn"> ▶ </button>
-  </div>
+    <div id="start-game" class="start-game">
+        <button class="start-game-btn" id="start-game-btn"> ▶ </button>
+    </div>
 
-  <div class="menu settings">
-    <div class="sound-options">
-      <button class="sound-btn option-btn" id="sound-btn"> 🔇 </button>
-    </div>
-    
-    <div class="tiles-options">
-      <button class="tiles-btn option-btn" id="tiles-btn"> # </button>
-    </div>
-    
-    <div class="theme-options">
-      <button class="theme-btn option-btn" id="theme-btn"> T </button>
-    </div>
-  </div>
+    <div class="menu settings">
+        <div class="sound-options">
+            <button class="sound-btn option-btn" id="sound-btn"> 🔇 </button>
+        </div>
 
-  <div class="menu keybindings">
-    <div class="group-key">
-      <div class="key arrowUp"><span>🢢</span></div>
-      <div class="key arrowDown"><span>🢡</span></div>
-      <div class="key arrowLeft">🢢</div>
-      <div class="key arrowRight">🢡</div>
-    </div>
-  </div>
+        <div class="tiles-options">
+            <button class="tiles-btn option-btn" id="tiles-btn"> # </button>
+        </div>
 
-  <canvas id="canvas"></canvas>
-  <script src="script.js" type="module"></script>
+        <div class="theme-options">
+            <button class="theme-btn option-btn" id="theme-btn"> T </button>
+        </div>
+    </div>
+
+    <div class="menu keybindings">
+        <div class="group-key">
+            <div class="key arrowUp"><span>🢢</span></div>
+            <div class="key arrowDown"><span>🢡</span></div>
+            <div class="key arrowLeft">🢢</div>
+            <div class="key arrowRight">🢡</div>
+        </div>
+    </div>
+
+    <div class="menu scores">
+        <h1>Leaderboard</h1>
+        <div id="loading">Loading...</div>
+        <div id="scorelist" class="score-list">
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+    <script src="script.js" type="module"></script>
+    <script src="score.js" defer type="module"></script>
 </body>
 
 </html>
