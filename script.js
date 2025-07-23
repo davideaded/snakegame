@@ -137,7 +137,7 @@ scoreContainer.addEventListener("scroll", () => {
 // NETWORKING
 async function fetchScores(page = 1, limit = 4) {
     try {
-        const url = `http://localhost:3000/api/v1/score?page=${page}&limit=${limit}`;
+        const url = `http://sss-score-storage-system-production.up.railway.app/api/v1/score?page=${page}&limit=${limit}`;
         const res = await fetch(url);
         return await res.json();
     } catch (error) {
@@ -155,7 +155,7 @@ async function fetchScores(page = 1, limit = 4) {
 
 async function saveScore(data) {
     try {
-        const url = "http://localhost:3000/api/v1/score";
+        const url = "http://sss-score-storage-system-production.up.railway.app/api/v1/score";
         const res = await fetch(url, {
             method: "POST",
             headers: {
@@ -166,12 +166,7 @@ async function saveScore(data) {
         if (!res.ok) throw new Error('Error saving data');
 
     } catch (error) {
-        document.getElementById("savescore")
-            .innerHTML = `
-                <div class="fetch-err">
-                    <p>Error saving score</p>
-                </div>
-            `;
+        console.error(error);
     }
 }
 
