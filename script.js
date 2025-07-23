@@ -91,6 +91,9 @@ function handleThemeSelection(htmlElement, e) {
 
 // UI
 
+const scoreData = await fetchScores();
+if (scoreData) renderUi(scoreData);
+
 const startButton = document.getElementById("start-game-btn");
 startButton.addEventListener("click", () => {
     const startDiv = document.getElementById("start-game");
@@ -110,6 +113,83 @@ tilesButton.addEventListener("click", () => {
 
 const themeButton = document.getElementById("theme-btn");
 themeButton.addEventListener("click", themesSelection);
+
+const saveScoreUi = document.getElementById("scoresaver");
+const saveScoreBtn = document.getElementById("submitscore");
+saveScoreBtn.addEventListener("click", async () => {
+    const name = document.getElementById("name").value;
+    if (!name.trim()) return alert("Name is required!");
+    const score = getHighScore();
+    saveScoreBtn.disabled = true;
+    await saveScore({name, score});
+    saveScoreBtn.disabled = false;
+    const updatedData = await fetchScores();
+    if (updatedData) renderUi(updatedData);
+    saveScoreUi.style.display = 'none';
+});
+
+// NETWORKING
+
+async function fetchScores() {
+    try {
+        const url = "http://localhost:3000/api/v1/score";
+        const res = await fetch(url);
+        return await res.json();
+    } catch (error) {
+        const scoreList = document.getElementById("scorelist");
+        const loadDiv = document.getElementById("loading");
+        scoreList.innerHTML = `
+            <div class="fetch-err">
+                <p>Error fetching score</p>
+            </div>
+        `;
+        loadDiv.style.display = "none";
+        return null;
+    }
+}
+
+async function saveScore(data) {
+    try {
+        const url = "http://localhost:3000/api/v1/score";
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: data.name, score: data.score })
+        });
+        if (!res.ok) throw new Error('Error saving data');
+
+    } catch (error) {
+        document.getElementById("savescore")
+            .innerHTML = `
+                <div class="fetch-err">
+                    <p>Error saving score</p>
+                </div>
+            `;
+    }
+}
+
+function formatDateTime(isoDate) {
+    return new Intl.DateTimeFormat('pt-BR', {
+        dateStyle: 'short',
+        timeStyle: 'short'
+    }).format(new Date(isoDate));
+}
+
+function renderUi(data) {
+    const scoreList = document.getElementById("scorelist");
+    const loadDiv = document.getElementById("loading");
+    scoreList.innerHTML = data.scores.map((s, i) => `
+        <div class="score">
+            <p class="score-position">${i + 1}.</p>
+            <p>${s.name}</p>
+            <p class="score-points">${s.value}pts</p>
+            <p class="score-date">${formatDateTime(s.createdAt)}</p>
+        </div>
+    `).join('');
+    loadDiv.style.display = "none";
+}
 
 // CANVAS SETTINGS
 function createCanvas() {
@@ -299,12 +379,14 @@ function getHighScore() {
     }
 }
 
-function saveHighScore() {
+// abc
+async function saveHighScore() {
     const score = snake.body.length - 3;
     try {
         const currentHighScore = localStorage.getItem("highScore");
         if (currentHighScore === null || score > currentHighScore) {
             localStorage.setItem("highScore", score);
+            saveScoreUi.style.display = 'flex';
             soundManager.play("highscore");
             return;
         }
