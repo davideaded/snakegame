@@ -91,9 +91,6 @@ function handleThemeSelection(htmlElement, e) {
 
 // UI
 
-const scoreData = await fetchScores();
-if (scoreData) renderUi(scoreData);
-
 const startButton = document.getElementById("start-game-btn");
 startButton.addEventListener("click", () => {
     const startDiv = document.getElementById("start-game");
@@ -128,17 +125,25 @@ saveScoreBtn.addEventListener("click", async () => {
     saveScoreUi.style.display = 'none';
 });
 
-// NETWORKING
+const scoreContainer = document.querySelector(".score-list");
+scoreContainer.addEventListener("scroll", () => {
+    const bottom = scoreContainer.scrollTop + scoreContainer.clientHeight >= scoreContainer.scrollHeight - 10;
 
-async function fetchScores() {
+    if (bottom) {
+        loadMoreScores();
+    }
+});
+
+// NETWORKING
+async function fetchScores(page = 1, limit = 4) {
     try {
-        const url = "http://localhost:3000/api/v1/score";
+        const url = `http://localhost:3000/api/v1/score?page=${page}&limit=${limit}`;
         const res = await fetch(url);
         return await res.json();
     } catch (error) {
         const scoreList = document.getElementById("scorelist");
         const loadDiv = document.getElementById("loading");
-        scoreList.innerHTML = `
+        scoreList.innerHTML += `
             <div class="fetch-err">
                 <p>Error fetching score</p>
             </div>
@@ -177,19 +182,46 @@ function formatDateTime(isoDate) {
     }).format(new Date(isoDate));
 }
 
+let currentPage = 1;
+const pageSize = 4;
+let isLoading = false;
+let isLastPage = false;
+
+async function loadMoreScores() {
+    if (isLoading || isLastPage) return;
+
+    isLoading = true;
+    document.getElementById("loading").style.display = "block";
+    const data = await fetchScores(currentPage, pageSize);
+    if (data && data.scores.length > 0) {
+        renderUi(data);
+        currentPage++;
+        if (data.scores.length < pageSize) {
+            isLastPage = true;
+        }
+    } else {
+        isLastPage = true;
+    }
+    isLoading = false;
+}
+loadMoreScores();
+
 function renderUi(data) {
     const scoreList = document.getElementById("scorelist");
     const loadDiv = document.getElementById("loading");
-    scoreList.innerHTML = data.scores.map((s, i) => `
+
+    scoreList.innerHTML += data.scores.map((s, i) => `
         <div class="score">
-            <p class="score-position">${i + 1}.</p>
+            <p class="score-position">${(currentPage - 1) * pageSize + i + 1}.</p>
             <p>${s.name}</p>
             <p class="score-points">${s.value}pts</p>
             <p class="score-date">${formatDateTime(s.createdAt)}</p>
         </div>
     `).join('');
+
     loadDiv.style.display = "none";
 }
+
 
 // CANVAS SETTINGS
 function createCanvas() {
